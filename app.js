@@ -5,46 +5,59 @@
 // Array com dados temporários.
 // Eles existem apenas enquanto a página está aberta.
 const chamados = [
-    {
-        // Identificador único deste exemplo.
-        id: 1,
+  {
+    // Identificador único deste exemplo.
+    id: 1,
 
-        // Título curto.
-        titulo: "Computador não liga",
+    // Título curto.
+    titulo: "Computador não liga",
 
-        // Descrição detalhada.
-        descricao: "O computador não apresenta sinal de energia.",
+    // Descrição detalhada.
+    descricao: "O computador não apresenta sinal de energia.",
 
-        // Prioridade do atendimento.
-        prioridade: "Alta",
+    // Prioridade do atendimento.
+    prioridade: "Alta",
 
-        // Situação atual.
-        status: "Aberto"
-    },
-    {
-        id: 2,
-        titulo: "Senha bloqueada",
-        descricao: "Usuário não consegue acessar o sistema.",
-        prioridade: "Média",
-        status: "Em atendimento"
-    },
-    {
-        // Identificador único deste exemplo.
-        id: 3,
+    // Situação atual.
+    status: "Aberto",
+  },
+  {
+    id: 2,
+    titulo: "Senha bloqueada",
+    descricao: "Usuário não consegue acessar o sistema.",
+    prioridade: "Média",
+    status: "Em atendimento",
+  },
+  {
+    // Identificador único deste exemplo.
+    id: 3,
 
-        // Título curto.
-        titulo: "notebook não liga",
+    // Título curto.
+    titulo: "notebook não liga",
 
-        // Descrição detalhada.
-        descricao: "O computador não apresenta sinal de energia.",
+    // Descrição detalhada.
+    descricao: "O computador não apresenta sinal de energia.",
 
-        // Prioridade do atendimento.
-        prioridade: "Alta",
+    // Prioridade do atendimento.
+    prioridade: "Baixo",
 
-        // Situação atual.
-        status: "Encerrado"
-    }
+    // Situação atual.
+    status: "Encerrado",
+  },
 ];
+
+//Colocando as prioridades dentro do Array
+const prioridades = ["Alta", "Média", "Baixo"];
+
+function chamadosBadge(prioridade) {
+  const estilos = {
+    Baixo: "badge bg-success text-white",
+    Média: "badge bg-warning",
+    Alta: "badge bg-danger piscar",
+  };
+
+  return estilos[prioridade] || "badge bg-secondary";
+}
 
 // Procura o elemento <div id="app">.
 // Guardaremos a referência para alterar a tela.
@@ -52,15 +65,14 @@ const app = document.getElementById("app");
 
 // Função que desenha o Dashboard.
 function mostrarDashboard() {
+  // filter cria um novo array com chamados abertos.
+  // length conta quantos existem.
+  const abertos = chamados.filter(
+    (chamado) => chamado.status === "Aberto",
+  ).length;
 
-    // filter cria um novo array com chamados abertos.
-    // length conta quantos existem.
-    const abertos = chamados
-        .filter(chamado => chamado.status === "Aberto")
-        .length;
-
-    // innerHTML substitui o conteúdo da área principal.
-    app.innerHTML = `
+  // innerHTML substitui o conteúdo da área principal.
+  app.innerHTML = `
         <h1 class="mb-4">Dashboard</h1>
 
         <div class="row g-3">
@@ -93,8 +105,7 @@ function mostrarDashboard() {
 
 // Função que desenha a listagem.
 function mostrarChamados() {
-
-    app.innerHTML = `
+  app.innerHTML = `
         <h1 class="mb-4">Chamados</h1>
 
         <div class="table-responsive">
@@ -108,17 +119,22 @@ function mostrarChamados() {
                     </tr>
                 </thead>
 
-                <tbody>
+                <tbody class="w-100">
+
                     ${
-                        // map transforma cada objeto em uma linha HTML.
-                        chamados.map(chamado => `
+                      // map transforma cada objeto em uma linha HTML.                 // Tive que adicionar a propriedade span nos textos por questões estéticas
+                      chamados
+                        .map(
+                          (chamado) => `
                             <tr>
                                 <td>${chamado.id}</td>
                                 <td>${chamado.titulo}</td>
-                                <td>${chamado.prioridade}</td>
+                                
+                                <td><span class="${chamadosBadge(chamado.prioridade)}">${chamado.prioridade}</span></td>
                                 <td>${chamado.status}</td>
                             </tr>
-                        `)
+                        `,
+                        )
                         // join une todas as linhas sem vírgula.
                         .join("")
                     }
@@ -130,8 +146,7 @@ function mostrarChamados() {
 
 // Função que desenha o formulário.
 function mostrarNovoChamado() {
-
-    app.innerHTML = `
+  app.innerHTML = `
         <h1 class="mb-4">Novo chamado</h1>
 
         <form id="formChamado">
@@ -157,17 +172,22 @@ function mostrarNovoChamado() {
                     rows="4">
                 </textarea>
             </div>
-
             <div class="mb-3">
                 <label class="form-label" for="prioridade">
                     Prioridade
                 </label>
 
                 <select class="form-select" id="prioridade" required>
-                    <option value="">Selecione</option>
-                    <option>Baixa</option>
-                    <option>Média</option>
-                    <option>Alta</option>
+                 
+                ${prioridades //Tornando as propriedades dinâmicas e fazendo elas aparecerem nos campos por meio de JS
+                  .map(
+                    (prioridade) => `
+                <option value="${prioridade}">
+                    ${prioridade}
+                </option>
+        `,
+                  )
+                  .join("")}
                 </select>
             </div>
 
@@ -177,69 +197,66 @@ function mostrarNovoChamado() {
         </form>
     `;
 
-    // Procura o formulário que acabou de ser criado.
-    const formulario = document.getElementById("formChamado");
+  // Procura o formulário que acabou de ser criado.
+  const formulario = document.getElementById("formChamado");
 
-    // Escuta o envio do formulário.
-    formulario.addEventListener("submit", cadastrarChamado);
+  // Escuta o envio do formulário.
+  formulario.addEventListener("submit", cadastrarChamado);
 }
 
 // Função executada no submit.
 function cadastrarChamado(evento) {
+  // Impede o navegador de recarregar a página.
+  evento.preventDefault();
 
-    // Impede o navegador de recarregar a página.
-    evento.preventDefault();
+  // push adiciona um novo objeto no array.
+  chamados.push({
+    // ID simplificado para aula.
+    id: chamados.length + 1,
 
-    // push adiciona um novo objeto no array.
-    chamados.push({
-        // ID simplificado para aula.
-        id: chamados.length + 1,
+    // Lê o valor do campo título.
+    titulo: document.getElementById("titulo").value,
 
-        // Lê o valor do campo título.
-        titulo: document.getElementById("titulo").value,
+    // Lê o valor da descrição.
+    descricao: document.getElementById("descricao").value,
 
-        // Lê o valor da descrição.
-        descricao: document.getElementById("descricao").value,
+    // Lê o valor selecionado.
+    prioridade: document.getElementById("prioridade").value,
 
-        // Lê o valor selecionado.
-        prioridade: document.getElementById("prioridade").value,
+    // Novo chamado começa aberto.
+    status: "Aberto",
+  });
 
-        // Novo chamado começa aberto.
-        status: "Aberto"
-    });
-
-    // Depois do cadastro, mostra a lista.
-    mostrarChamados();
+  // Depois do cadastro, mostra a lista.
+  mostrarChamados();
 }
 
 // Seleciona todos os elementos que têm data-view.
 const links = document.querySelectorAll("[data-view]");
 
 // Percorre os links.
-links.forEach(link => {
+links.forEach((link) => {
+  // Escuta clique.
+  link.addEventListener("click", (evento) => {
+    // Impede navegação padrão.
+    evento.preventDefault();
 
-    // Escuta clique.
-    link.addEventListener("click", evento => {
+    // Lê data-view.
+    const view = link.dataset.view;
 
-        // Impede navegação padrão.
-        evento.preventDefault();
+    // Decide qual "tela" mostrar.
+    if (view === "dashboard") {
+      mostrarDashboard();
+    }
 
-        // Lê data-view.
-        const view = link.dataset.view;
+    if (view === "chamados") {
+      mostrarChamados();
+    }
 
-        // Decide qual "tela" mostrar.
-        if (view === "dashboard") {
-            mostrarDashboard();
-        }
-
-        if (view === "chamados") {
-            mostrarChamados();
-        }
-
-        if (view === "novo") {
-            mostrarNovoChamado();
-        }
-    });
+    if (view === "novo") {
+      mostrarNovoChamado();
+    }
+  });
 });
 
 // Primeira tela.
