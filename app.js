@@ -59,6 +59,14 @@ function chamadosBadge(prioridade) {
   return estilos[prioridade] || "badge bg-secondary";
 }
 
+//Função responsável por cada chamado aparecer na tela
+function acoes(chamados) {
+  if (chamados.status === "Aberto" || chamados.status == "Em atendimento") {
+    return `<button class="btn btn-sm btn-danger"> Encerrar chamado </button>`;
+  }
+  return `<p><span class="badge bg-success">Chamado encerrado</span></p>`;
+}
+
 // Procura o elemento <div id="app">.
 // Guardaremos a referência para alterar a tela.
 const app = document.getElementById("app");
@@ -116,6 +124,7 @@ function mostrarChamados() {
                         <th>Título</th>
                         <th>Prioridade</th>
                         <th>Status</th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
 
@@ -132,6 +141,7 @@ function mostrarChamados() {
                                 
                                 <td><span class="${chamadosBadge(chamado.prioridade)}">${chamado.prioridade}</span></td>
                                 <td>${chamado.status}</td>
+                                <td>${acoes(chamado)}</td>
                             </tr>
                         `,
                         )
