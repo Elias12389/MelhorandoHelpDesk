@@ -61,8 +61,9 @@ function chamadosBadge(prioridade) {
 
 //Função responsável por cada chamado aparecer na tela
 function acoes(chamados) {
+  //validação para saber quando carregar o botão de encerrar chamado
   if (chamados.status === "Aberto" || chamados.status == "Em atendimento") {
-    return `<button class="btn btn-sm btn-danger"> Encerrar chamado </button>`;
+    return `<button class="btn btn-sm btn-danger" data-id="${chamados.id}"> Encerrar chamado </button>`;
   }
   return `<p><span class="badge bg-success">Chamado encerrado</span></p>`;
 }
@@ -152,6 +153,51 @@ function mostrarChamados() {
             </table>
         </div>
     `;
+
+  //Guardando em uma variável todos os botões com o data id
+  let encerrarChamado = document.querySelectorAll("[data-id]");
+  //Adicionando o evento de click para cada botão
+  encerrarChamado.forEach((encerramento) => {
+    encerramento.addEventListener("click", () => {
+      let idChamado = encerramento.dataset.id;
+      //método find utilizado para buscar dentro da lista chamado o chamado com a condição específica
+      const chamadoSelecionado = chamados.find((chamado) => {
+        return chamado.id === Number(idChamado); //Number para converter o valor de string pego em número
+      });
+
+      mostrarEncerramentos(chamadoSelecionado); //Chamando a função mostrarEncerramento com o id correto que deve ser carregado na tela
+    });
+  });
+}
+
+function mostrarEncerramentos(chamado) {
+  app.innerHTML = `
+    <div class="card text-center w-100 align-items-center container d-flex flex-column">    
+        <h1><span>${chamado.titulo}</span></h1>
+        <p><b><span>Descrição:</span></b></p>
+        <p><span>${chamado.descricao}</span></p>
+        <p><b><span>Prioridade:</span></b></p>
+        <p class="${chamadosBadge(chamado.prioridade)} w-25"><span>${chamado.prioridade}</span></p>
+        <p><b><span>Status:</span></b></p>
+        <p><span>${chamado.status}</span></p>
+    </div>
+    <div class="card text-center mt-2">
+        <form id="formularioEncerramento" class="container d-flex flex-column align-items-center">
+        <label for="descricao">Digite o procedimento realizado</label>
+        <textarea name="" id="procedimentoRealizado" class="w-50" required></textarea>
+
+        <button class="btn btn-sm btn-success mt-4 mb-4 w-50" type="submit">Enviar Solução</button>
+        </form>
+    </div>
+      `;
+
+  const formulario = document.querySelector("#formularioEncerramento");
+
+  formulario.addEventListener("submit", (envio) => {
+    envio.preventDefault();
+
+    mostrarDashboard();
+  });
 }
 
 // Função que desenha o formulário.
