@@ -61,10 +61,19 @@ function chamadosBadge(prioridade) {
   return estilos[prioridade] || "badge bg-secondary";
 }
 
+function chamadosStatus(status) {
+  const estilosStatus = {
+    Aberto: "badge bg-warning text-white",
+    "Em atendimento": "badge bg-primary text-white", //Tive que colocar dessa forma para suportar o espaço
+    Encerrado: "badge bg-success text-white",
+  };
+  return estilosStatus[status] || "badge bg-secondary";
+}
+
 //Função responsável por cada chamado aparecer na tela e por percorrer cada um.
 function acoes(chamados) {
   //validação para saber quando carregar o botão de encerrar chamado
-  if (chamados.status === "Aberto" || chamados.status == "Em atendimento") {
+  if (chamados.status === "Aberto" || chamados.status === "Em atendimento") {
     return `
       <button class="btn btn-sm btn-danger border-1 border-black" data-id="${chamados.id}" data-acao="encerrar"> Encerrar chamado </button>
       <button class="btn btn-sm btn-info border-1 border-black" data-id="${chamados.id}" data-acao="visualizar">Visualizar</button>
@@ -89,6 +98,18 @@ function mostrarDashboard() {
     (chamado) => chamado.status === "Aberto",
   ).length;
 
+  //Pegando as demais informações para exibir no dashboard
+  const emAtendimento = chamados.filter(
+    (chamado) => chamado.status === "Em atendimento",
+  ).length;
+
+  const chamadosEncerrados = chamados.filter(
+    (chamado) => chamado.status === "Encerrado",
+  ).length;
+
+  const prioridadeAlta = chamados.filter(
+    (chamado) => chamado.prioridade === "Alta",
+  ).length;
   // innerHTML substitui o conteúdo da área principal.
   app.innerHTML = `
         <h1 class="mb-4">Dashboard</h1>
@@ -117,6 +138,43 @@ function mostrarDashboard() {
                     </div>
                 </div>
             </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="h5">Em atendimento</h2>
+
+                        <p class="display-6">
+                            ${emAtendimento}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="h5">Encerrados</h2>
+
+                        <p class="display-6">
+                            ${chamadosEncerrados}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="h5">Prioridade alta</h2>
+
+                        <p class="display-6">
+                            ${prioridadeAlta}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
         </div>
     `;
 }
@@ -150,7 +208,7 @@ function mostrarChamados() {
                                 <td>${chamado.titulo}</td>
                                 
                                 <td><span class="${chamadosBadge(chamado.prioridade)}">${chamado.prioridade}</span></td>
-                                <td>${chamado.status}</td>
+                                <td><span class="${chamadosStatus(chamado.status)}">${chamado.status}</span></td>
                                 <td>${acoes(chamado)}</td>
                             </tr>
                         `,
@@ -177,6 +235,7 @@ function mostrarChamados() {
           return chamado.id === Number(idChamado); //Number para converter o valor de string pego em número
         });
 
+        chamadoSelecionado.status = "Em atendimento"; //No exercício em sí não pede, mas fiz porque não tem como acessar o status "Em atendimento" de outra forma.
         mostrarEncerramentos(chamadoSelecionado); //Chamando a função mostrarEncerramento com o id correto que deve ser carregado na tela
       } else if (encerramento.dataset.acao === "visualizar") {
         let idEncerramento = encerramento.dataset.id;
@@ -206,7 +265,7 @@ function mostrarEncerramentos(chamado) {
     </div>
     <div class="card text-center mt-2">
         <form id="formularioEncerramento" class="container d-flex flex-column align-items-center">
-        <label for="descricao">Digite o procedimento realizado</label>
+        <label for="procedimentoRealizado">Digite o procedimento realizado</label>
         <textarea name="" id="procedimentoRealizado" class="w-50" required></textarea>
 
         <button class="btn btn-sm btn-success mt-4 mb-4 w-50" type="submit">Enviar Solução</button>
@@ -359,4 +418,4 @@ links.forEach((link) => {
 });
 
 // Primeira tela.
-mostrarChamados();
+mostrarDashboard();
