@@ -192,10 +192,12 @@ function mostrarEncerramentos(chamado) {
       `;
 
   const formulario = document.querySelector("#formularioEncerramento");
-
+  
   formulario.addEventListener("submit", (envio) => {
     envio.preventDefault();
+    let textoProcedimento = document.querySelector('#procedimentoRealizado').value
 
+    console.log(textoProcedimento)
     mostrarDashboard();
   });
 }
