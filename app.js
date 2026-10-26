@@ -43,6 +43,8 @@ const chamados = [
 
     // Situação atual.
     status: "Encerrado",
+
+    solucao: "Troca de bateria realizada",
   },
 ];
 
@@ -59,13 +61,20 @@ function chamadosBadge(prioridade) {
   return estilos[prioridade] || "badge bg-secondary";
 }
 
-//Função responsável por cada chamado aparecer na tela
+//Função responsável por cada chamado aparecer na tela e por percorrer cada um.
 function acoes(chamados) {
   //validação para saber quando carregar o botão de encerrar chamado
   if (chamados.status === "Aberto" || chamados.status == "Em atendimento") {
-    return `<button class="btn btn-sm btn-danger border-1 border-black" data-id="${chamados.id}"> Encerrar chamado </button>`;
+    return `
+      <button class="btn btn-sm btn-danger border-1 border-black" data-id="${chamados.id}" data-acao="encerrar"> Encerrar chamado </button>
+      <button class="btn btn-sm btn-info border-1 border-black" data-id="${chamados.id}" data-acao="visualizar">Visualizar</button>
+    `;
   }
-  return `<p><span class="badge bg-success p-2">Chamado encerrado</span></p>`;
+
+  return `
+    <p><span class="badge bg-success p-2">Chamado encerrado</span></p>
+    <button class="btn btn-sm btn-info border-1 border-black" data-id="${chamados.id}" data-acao="visualizar">Visualizar</button>
+  `;
 }
 
 // Procura o elemento <div id="app">.
@@ -156,24 +165,38 @@ function mostrarChamados() {
 
   //Guardando em uma variável todos os botões com o data id
   let encerrarChamado = document.querySelectorAll("[data-id]");
+
   //Adicionando o evento de click para cada botão
   encerrarChamado.forEach((encerramento) => {
-    encerramento.addEventListener("click", () => {
-      let idChamado = encerramento.dataset.id;
-      //método find utilizado para buscar dentro da lista chamado o chamado com a condição específica
-      const chamadoSelecionado = chamados.find((chamado) => {
-        return chamado.id === Number(idChamado); //Number para converter o valor de string pego em número
-      });
+    encerramento.addEventListener("click", (e) => {
+      if (encerramento.dataset.acao === "encerrar") {
+        let idChamado = encerramento.dataset.id;
 
-      mostrarEncerramentos(chamadoSelecionado); //Chamando a função mostrarEncerramento com o id correto que deve ser carregado na tela
+        //método find utilizado para buscar dentro da lista chamado o chamado com a condição específica
+        const chamadoSelecionado = chamados.find((chamado) => {
+          return chamado.id === Number(idChamado); //Number para converter o valor de string pego em número
+        });
+
+        mostrarEncerramentos(chamadoSelecionado); //Chamando a função mostrarEncerramento com o id correto que deve ser carregado na tela
+      } else if (encerramento.dataset.acao === "visualizar") {
+        let idEncerramento = encerramento.dataset.id;
+
+        const chamadoVisualizado = chamados.find((chamado) => {
+          return Number(idEncerramento) === chamado.id;
+        });
+
+        mostrarVisualizacao(chamadoVisualizado);
+      }
     });
   });
 }
 
+//Função para fazer aparecer na tela os chamados encerrados
 function mostrarEncerramentos(chamado) {
   app.innerHTML = `
     <div class="card text-center w-100 align-items-center container d-flex flex-column">    
         <h1><span>${chamado.titulo}</span></h1>
+        <h4><span>ID: ${chamado.id}</span></h4>
         <p><b><span>Descrição:</span></b></p>
         <p><span>${chamado.descricao}</span></p>
         <p><b><span>Prioridade:</span></b></p>
@@ -192,14 +215,17 @@ function mostrarEncerramentos(chamado) {
       `;
 
   const formulario = document.querySelector("#formularioEncerramento");
-  
+
   formulario.addEventListener("submit", (envio) => {
     envio.preventDefault();
-    let textoProcedimento = document.querySelector('#procedimentoRealizado').value
-    
+    let textoProcedimento = document.querySelector(
+      "#procedimentoRealizado",
+    ).value;
+
     //Adicionando o campo novo de solução somente para o campo específico
-    chamado.solucao = textoProcedimento
-    chamado.status = "Encerrado"
+    chamado.solucao = textoProcedimento;
+    chamado.status = "Encerrado";
+
     //Garante que volte para a tela dos chamados
     mostrarChamados();
   });
@@ -264,6 +290,18 @@ function mostrarNovoChamado() {
   // Escuta o envio do formulário.
   formulario.addEventListener("submit", cadastrarChamado);
 }
+//Função responsável por fazer aparecer na tela a parte do visualizar
+function mostrarVisualizacao(chamado) {
+  app.innerHTML = `
+      <div class="card">
+        <h1>${chamado.titulo}</h1>
+        <p><b>Descrição: </b>${chamado.descricao}</p>
+        <p><b>Prioridade </b>${chamado.prioridade}</p>
+        <p><b>Status: </b>${chamado.status}</p>
+        ${chamado.status === "Encerrado" ? `<p><b>Solução:</b>${chamado.solucao}</p> ` : ""}
+      </div>
+  `;
+}
 
 // Função executada no submit.
 function cadastrarChamado(evento) {
@@ -321,4 +359,4 @@ links.forEach((link) => {
 });
 
 // Primeira tela.
-mostrarDashboard();
+mostrarChamados();
