@@ -63,9 +63,9 @@ function chamadosBadge(prioridade) {
 function acoes(chamados) {
   //validação para saber quando carregar o botão de encerrar chamado
   if (chamados.status === "Aberto" || chamados.status == "Em atendimento") {
-    return `<button class="btn btn-sm btn-danger" data-id="${chamados.id}"> Encerrar chamado </button>`;
+    return `<button class="btn btn-sm btn-danger border-1 border-black" data-id="${chamados.id}"> Encerrar chamado </button>`;
   }
-  return `<p><span class="badge bg-success">Chamado encerrado</span></p>`;
+  return `<p><span class="badge bg-success p-2">Chamado encerrado</span></p>`;
 }
 
 // Procura o elemento <div id="app">.
@@ -196,9 +196,12 @@ function mostrarEncerramentos(chamado) {
   formulario.addEventListener("submit", (envio) => {
     envio.preventDefault();
     let textoProcedimento = document.querySelector('#procedimentoRealizado').value
-
-    console.log(textoProcedimento)
-    mostrarDashboard();
+    
+    //Adicionando o campo novo de solução somente para o campo específico
+    chamado.solucao = textoProcedimento
+    chamado.status = "Encerrado"
+    //Garante que volte para a tela dos chamados
+    mostrarChamados();
   });
 }
 
