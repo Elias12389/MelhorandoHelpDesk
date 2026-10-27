@@ -255,7 +255,7 @@ function mostrarEncerramentos(chamado) {
   app.innerHTML = `
     <div class="card text-center w-100 align-items-center container d-flex flex-column">    
         <h1><span>${chamado.titulo}</span></h1>
-        <h4><span>ID: ${chamado.id}</span></h4>
+        <h4><span>Chamado: #${chamado.id}</span></h4>
         <p><b><span>Descrição:</span></b></p>
         <p><span>${chamado.descricao}</span></p>
         <p><b><span>Prioridade:</span></b></p>
@@ -266,8 +266,8 @@ function mostrarEncerramentos(chamado) {
     <div class="card text-center mt-2">
         <form id="formularioEncerramento" class="container d-flex flex-column align-items-center">
         <label for="procedimentoRealizado">Digite o procedimento realizado</label>
-        <textarea name="" id="procedimentoRealizado" class="w-50" required></textarea>
-
+        <textarea name="" id="procedimentoRealizado" class="w-50"></textarea>
+        <p class="text-danger" id="mensagemErro"></p>
         <button class="btn btn-sm btn-success mt-4 mb-4 w-50" type="submit">Enviar Solução</button>
         </form>
     </div>
@@ -280,6 +280,14 @@ function mostrarEncerramentos(chamado) {
     let textoProcedimento = document.querySelector(
       "#procedimentoRealizado",
     ).value;
+    textoProcedimento = textoProcedimento.trim();
+
+    let mensagemErro = document.querySelector("#mensagemErro");
+
+    if (textoProcedimento === "") {
+      return (mensagemErro.textContent = "Por favor, digite um valor válido!");
+    }
+    mensagemErro.textContent = "";
 
     //Adicionando o campo novo de solução somente para o campo específico
     chamado.solucao = textoProcedimento;
@@ -304,7 +312,7 @@ function mostrarNovoChamado() {
                 <input
                     class="form-control"
                     id="titulo"
-                    required>
+                    >
             </div>
 
             <div class="mb-3">
@@ -323,7 +331,7 @@ function mostrarNovoChamado() {
                     Prioridade
                 </label>
 
-                <select class="form-select" id="prioridade" required>
+                <select class="form-select" id="prioridade">
                  
                 ${prioridades //Tornando as propriedades dinâmicas e fazendo elas aparecerem nos campos por meio de JS
                   .map(
@@ -336,6 +344,8 @@ function mostrarNovoChamado() {
                   .join("")}
                 </select>
             </div>
+
+            <p><span class="text-danger" id="mensagemErroCadastroChamado"><span><p>
 
             <button class="btn btn-success" type="submit">
                 Cadastrar
@@ -367,6 +377,21 @@ function cadastrarChamado(evento) {
   // Impede o navegador de recarregar a página.
   evento.preventDefault();
 
+  //Pegando os valores para fazer a mensagem de erro
+  let tituloFormulario = document.querySelector("#titulo").value;
+  let descricao = document.querySelector("#descricao").value;
+
+  tituloFormulario = tituloFormulario.trim();
+  descricao = descricao.trim();
+
+  //Pegando a mensagem de erro do próprio formulario
+  let mensagemErro = document.querySelector("#mensagemErroCadastroChamado");
+
+  if (tituloFormulario === "" || descricao === "") {
+    return (mensagemErro.textContent = "Por favor, digite valores válidos!");
+  }
+  mensagemErro.textContent = ""; //Garante que a mensagem de erro será limpa após o cadastro do novo chamado
+
   // push adiciona um novo objeto no array.
   chamados.push({
     // ID simplificado para aula.
@@ -385,7 +410,7 @@ function cadastrarChamado(evento) {
     status: "Aberto",
   });
 
-  // Depois do cadastro, mostra a lista.
+  // Depois do cadastro ele vai mostra a lista com o novo cadastro
   mostrarChamados();
 }
 
